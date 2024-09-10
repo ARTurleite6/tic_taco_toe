@@ -19,7 +19,7 @@ defmodule TtcWeb.GameLive do
   def render(assigns) do
     ~H"""
     <div class="max-w-2xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
-      <%= if @game.status == "finished" do %>
+      <%= if @game.status == "finished" and @game.winner != nil do %>
         <%= for _ <- 1..50 do %>
           <div
             class="confetti"
@@ -208,16 +208,16 @@ defmodule TtcWeb.GameLive do
           |> put_flash(:info, "Move played successfully #{inspect({row, col})}")
 
         {:error, :game_already_finished} ->
-          socket
-          |> put_flash(:error, "The game has finished")
+          put_flash(socket, :error, "The game has finished")
+
+        {:error, :play_already_taken} ->
+          put_flash(socket, :error, "This play is already taken!")
 
         {:error, :game_not_started} ->
-          socket
-          |> put_flash(:error, "You need to wait for the game to start")
+          put_flash(socket, :error, "You need to wait for the game to start")
 
         {:error, :wait_for_your_turn} ->
-          socket
-          |> put_flash(:error, "You need to wait for your turn to make a move")
+          put_flash(socket, :error, "You need to wait for your turn to make a move")
       end
 
     {:noreply, socket}

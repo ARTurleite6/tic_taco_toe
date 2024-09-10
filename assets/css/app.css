@@ -10,27 +10,25 @@ html, body {
    padding: 0;
 }
 
-<style>
-  @keyframes confetti-fall {
-    0% { transform: translateY(-100vh) rotate(0deg); }
-    100% { transform: translateY(100vh) rotate(720deg); }
-  }
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); }
+  100% { transform: translateY(100vh) rotate(720deg); }
+}
 
-  .confetti {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    background-color: #f2d74e;
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-    animation: confetti-fall 4s linear infinite;
-  }
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background-color: #f2d74e;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  animation: confetti-fall 4s linear infinite;
+}
 
-  @keyframes winner-glow {
-    0%, 100% { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #ff00de, 0 0 35px #ff00de, 0 0 40px #ff00de, 0 0 50px #ff00de, 0 0 75px #ff00de; }
-    50% { text-shadow: 0 0 2px #fff, 0 0 5px #fff, 0 0 7px #fff, 0 0 10px #ff00de, 0 0 17px #ff00de, 0 0 20px #ff00de, 0 0 25px #ff00de, 0 0 37px #ff00de; }
-  }
+@keyframes winner-glow {
+  0%, 100% { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #ff00de, 0 0 35px #ff00de, 0 0 40px #ff00de, 0 0 50px #ff00de, 0 0 75px #ff00de; }
+  50% { text-shadow: 0 0 2px #fff, 0 0 5px #fff, 0 0 7px #fff, 0 0 10px #ff00de, 0 0 17px #ff00de, 0 0 20px #ff00de, 0 0 25px #ff00de, 0 0 37px #ff00de; }
+}
 
-  .winner-text {
-    animation: winner-glow 1s ease-in-out infinite alternate;
-  }
-</style>
+.winner-text {
+  animation: winner-glow 1s ease-in-out infinite alternate;
+}

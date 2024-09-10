@@ -51,27 +51,30 @@ defmodule Ttc.GameServer do
         _from,
         %{current_player: username, status: "started"} = state
       ) do
-    new_state = apply_move(state, x, y, username)
+    if is_board_free(state.board, x, y) do
+      new_state = apply_move(state, x, y, username)
 
-    winner = get_winner_if_exists(new_state.board)
+      winner = get_winner_if_exists(new_state.board)
 
-    # TODO: handle when board is already filled in the required position
-    new_state =
-      if winner != nil do
-        %{new_state | status: "finished", winner: new_state[:players][winner]}
-      else
-        has_finished =
-          state.board
-          |> List.flatten()
-          |> Enum.all?(fn elem -> elem != "" end)
+      new_state =
+        if winner != nil do
+          %{new_state | status: "finished", winner: new_state[:players][winner]}
+        else
+          has_finished =
+            new_state.board
+            |> List.flatten()
+            |> Enum.all?(fn elem -> elem != "" end)
 
-        %{new_state | status: if(has_finished, do: "finished", else: state.status)}
-      end
+          %{new_state | status: if(has_finished, do: "finished", else: state.status)}
+        end
 
-    {:reply, {:ok, new_state}, new_state}
+      {:reply, {:ok, new_state}, new_state}
+    else
+      {:reply, {:error, :play_already_taken}, state}
+    end
   end
 
-  def handle_call({:make_move, _, _, _}, _from, state) do
+  def handle_call({:make_move, _username, _, _}, _from, state) do
     error_message =
       cond do
         state.status == "finished" ->
@@ -201,6 +204,11 @@ defmodule Ttc.GameServer do
         current_player:
           if(game_state.player_1 == username, do: game_state.player_2, else: game_state.player_1)
     }
+  end
+
+  defp is_board_free(board, x, y) do
+    selected_piece = board |> Enum.at(y) |> Enum.at(x)
+    selected_piece == ""
   end
 
   defp get_player_symbol(game_state, username) do

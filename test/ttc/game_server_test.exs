@@ -73,16 +73,15 @@ defmodule Ttc.GameServerTest do
     assert {:ok, state} = GameServer.start_game(game_id)
     assert state.current_player != nil
 
-    current_player = state.current_player
-    other_player = if state.player_1 == current_player, do: state.player_2, else: state.player_1
+    first_player = state.current_player
 
-    assert {:ok, _state} = GameServer.make_move(game_id, current_player, 0, 0)
-    assert {:ok, _state} = GameServer.make_move(game_id, other_player, 0, 1)
-    assert {:ok, _state} = GameServer.make_move(game_id, current_player, 1, 0)
-    assert {:ok, _state} = GameServer.make_move(game_id, other_player, 1, 2)
-    assert {:ok, state} = GameServer.make_move(game_id, current_player, 2, 0)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 0, 0)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 0, 1)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 1, 0)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 1, 2)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 2, 0)
     assert state.status == "finished"
-    assert state.winner == current_player
+    assert state.winner == first_player
   end
 
   test "making a move places the symbol in the correct place", %{game_id: game_id} do
@@ -90,10 +89,40 @@ defmodule Ttc.GameServerTest do
     GameServer.add_player(game_id, "second player")
     assert {:ok, state} = GameServer.start_game(game_id)
     assert state.current_player != nil
-
     current_player = state.current_player
 
     assert {:ok, state} = GameServer.make_move(game_id, current_player, 0, 0)
     assert state.board |> Enum.at(0) |> Enum.at(0) != ""
+  end
+
+  test "return error when making same play twice", %{game_id: game_id} do
+    GameServer.add_player(game_id, "first player")
+    GameServer.add_player(game_id, "second player")
+    assert {:ok, state} = GameServer.start_game(game_id)
+    assert state.current_player != nil
+
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 0, 0)
+
+    assert {:error, :play_already_taken} =
+             GameServer.make_move(game_id, state.current_player, 0, 0)
+  end
+
+  test "finish game when board is full and there was no winner", %{game_id: game_id} do
+    GameServer.add_player(game_id, "first player")
+    GameServer.add_player(game_id, "second player")
+    assert {:ok, state} = GameServer.start_game(game_id)
+    assert state.current_player != nil
+
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 0, 0)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 0, 1)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 0, 2)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 1, 2)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 1, 0)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 2, 0)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 1, 1)
+    assert {:ok, state} = GameServer.make_move(game_id, state.current_player, 2, 2)
+
+    assert {:ok, %{status: "finished", winner: nil}} =
+             GameServer.make_move(game_id, state.current_player, 2, 1)
   end
 end
